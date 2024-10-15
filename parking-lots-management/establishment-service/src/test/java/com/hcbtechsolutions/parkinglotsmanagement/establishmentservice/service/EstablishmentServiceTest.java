@@ -26,12 +26,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.dto.AddressDto;
+import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.dto.EstablishmentDto;
+import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.dto.PhoneDto;
 import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.enums.StateEnum;
 import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.exception.ResourceAlreadyExistsException;
 import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.exception.ResourceNotFoundException;
-import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.model.Address;
 import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.model.Establishment;
-import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.model.Phone;
 import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.repository.EstablishmentRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,52 +44,48 @@ class EstablishmentServiceTest {
     @InjectMocks
     private EstablishmentServiceImpl service;
 
-    private Establishment establishmentOne;
+    private EstablishmentDto establishmentOne;
 
     @BeforeEach
     public void setup() {
-        establishmentOne = Establishment.builder()
-                .cnpj("62.258.611/0001-91")
-                .name("Establishment Test 1")
-                .address(
-                    Address.builder()
-                        .name("Rua Oiapoque")
-                        .number("60")
-                        .complement("casa")
-                        .district("Aleixo")
-                        .city("Manaus")
-                        .state(StateEnum.AM)
-                        .cep("69060-170")
-                        .build())
-                .phone(
-                    Phone.builder()
-                        .ddd("92")
-                        .number("98199-5567")
-                        .build())
-                .numberSpaceCar(6)
-                .numberSpaceMotocycle(6)
-                .build();
+        establishmentOne = new EstablishmentDto(
+            null,
+            "62.258.611/0001-91",
+            "Establishment Test 1",
+            new AddressDto(
+                null, 
+                "Rua Oiapoque", 
+                "60", 
+                "casa", 
+                "Aleixo", 
+                "Manaus", 
+                StateEnum.AM, 
+                "69060-170"),
+            new PhoneDto(null, "92", "98199-5567"),
+            6,
+            6
+        );
     }
 
     @Test
     @DisplayName("JUnit test for Given Establishment Object when Save then Return Saved Establishment")
     void testGivenEstablishmentObject_whenSave_thenReturnSavedEstablishment() {
         given(repository.findByCnpj(anyString())).willReturn(Optional.empty());
-        given(repository.save(establishmentOne)).willReturn(establishmentOne);
+        given(repository.save(any(Establishment.class))).willReturn(establishmentOne.toModel());
 
-        Establishment savedEstablishment = service.save(establishmentOne);
+        EstablishmentDto savedEstablishment = service.save(establishmentOne);
 
         assertNotNull(savedEstablishment);
-        assertNotNull(savedEstablishment.getAddress());
-        assertNotNull(savedEstablishment.getPhone());
-        assertEquals(establishmentOne.getName(), savedEstablishment.getName());
-        assertEquals(establishmentOne.getCnpj(), savedEstablishment.getCnpj());
+        assertNotNull(savedEstablishment.address());
+        assertNotNull(savedEstablishment.phone());
+        assertEquals(establishmentOne.name(), savedEstablishment.name());
+        assertEquals(establishmentOne.cnpj(), savedEstablishment.cnpj());
     }
 
     @Test
     @DisplayName("JUnit test for Given Existing Cnpj when Save then Trhows ResourceAlreadyExistsException")
     void testGivenExistingCnpj_whenSave_thenTrhowsResourceAlreadyExistsException() {
-        given(repository.findByCnpj(anyString())).willReturn(Optional.of(establishmentOne));
+        given(repository.findByCnpj(anyString())).willReturn(Optional.of(establishmentOne.toModel()));
         
         assertThrows(ResourceAlreadyExistsException.class, () -> service.save(establishmentOne));
         
@@ -98,9 +95,9 @@ class EstablishmentServiceTest {
     @Test
     @DisplayName("JUnit test for Given Establishment List when FindAll then Return Establishment List")
     void testGivenEstablishmentList_whenFindAll_thenReturnEstablishmentList() {
-        given(repository.findAll()).willReturn(List.of(establishmentOne));
+        given(repository.findAll()).willReturn(List.of(establishmentOne.toModel()));
 
-        List<Establishment> establishmentList = service.findAll();
+        List<EstablishmentDto> establishmentList = service.findAll();
 
         assertNotNull(establishmentList);
         assertFalse(establishmentList.isEmpty());
@@ -112,7 +109,7 @@ class EstablishmentServiceTest {
     void testGivenEmptyEstablishmentList_whenFindAll_thenReturnEmptyEstablishmentList() {
         given(repository.findAll()).willReturn(Collections.emptyList());
 
-        List<Establishment> establishmentList = service.findAll();
+        List<EstablishmentDto> establishmentList = service.findAll();
 
         assertTrue(establishmentList.isEmpty());
         assertEquals(0, establishmentList.size());
@@ -122,13 +119,14 @@ class EstablishmentServiceTest {
     @DisplayName("JUnit test for Given EstablishmentId when FindOne then Return Establishment Object")
     void testGivenEstablishmentId_whenFindOne_thenReturnEstablishmentObject() {
         UUID establishmentId = UUID.randomUUID();
-        establishmentOne.setId(establishmentId);
-        given(repository.findById(any(UUID.class))).willReturn(Optional.of(establishmentOne));
+        Establishment establishment = establishmentOne.toModel();
+        establishment.setId(establishmentId);
+        given(repository.findById(any(UUID.class))).willReturn(Optional.of(establishment));
 
-        Optional<Establishment> foundEstablishment = service.findOne(establishmentId);
+        EstablishmentDto foundEstablishment = service.findOne(establishmentId);
 
-        assertTrue(foundEstablishment.isPresent());
-        assertEquals(establishmentId, foundEstablishment.get().getId());
+        assertNotNull(foundEstablishment);
+        assertEquals(establishmentId, foundEstablishment.id());
     }
 
     @Test
@@ -144,23 +142,25 @@ class EstablishmentServiceTest {
     @DisplayName("JUnit test for Given EstablishmentObject when Update then Return UpdatedEstablishment")
     void testGivenEstablishmentObject_whenUpdate_thenReturnUpdatedEstablishment() {
         UUID establishmentId = UUID.randomUUID();
-        establishmentOne.setId(establishmentId);
-        
-        given(repository.findById(any(UUID.class))).willReturn(Optional.of(establishmentOne));
-        
         String updatedName = "Establishment Test 1 Updated";
         Integer updatedNumberSpaceCar = 3;
+        
+        Establishment establishment = establishmentOne.toModel();
+        
+        establishment.setId(establishmentId);
+        establishment.setName(updatedName);
+        establishment.setNumberSpaceCar(updatedNumberSpaceCar);
 
-        establishmentOne.setName(updatedName);
-        establishmentOne.setNumberSpaceCar(updatedNumberSpaceCar);
+        EstablishmentDto establishmentDto = EstablishmentDto.fromModel(establishment);
+        
+        given(repository.findById(any(UUID.class))).willReturn(Optional.of(establishment));
+        given(repository.save(any(Establishment.class))).willReturn(establishment);
 
-        given(repository.save(establishmentOne)).willReturn(establishmentOne);
-
-        Establishment updatedEstablishment = service.update(establishmentId, establishmentOne);
+        EstablishmentDto updatedEstablishment = service.update(establishmentId, establishmentDto);
         
         assertNotNull(updatedEstablishment);
-        assertEquals(updatedName, updatedEstablishment.getName());
-        assertEquals(updatedNumberSpaceCar, updatedEstablishment.getNumberSpaceCar());
+        assertEquals(updatedName, updatedEstablishment.name());
+        assertEquals(updatedNumberSpaceCar, updatedEstablishment.numberSpaceCar());
     }
 
     @Test

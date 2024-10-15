@@ -3,9 +3,11 @@ package com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.dto.EstablishmentDto;
 import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.exception.ResourceAlreadyExistsException;
 import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.exception.ResourceNotFoundException;
 import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.model.Establishment;
@@ -25,61 +27,70 @@ public class EstablishmentServiceImpl implements EstablishmentService {
     private static final String ESTABLISHMENT_ALREADY_EXISTS = "Establishment already exists with cnpj: ";
 
     @Override
-    public Establishment save(Establishment establishment) {
+    public EstablishmentDto save(EstablishmentDto establishment) {
         log.info("Saving one Establishment!");
 
-        String cnpj = establishment.getCnpj();
-        Optional<Establishment> savedEstablishment = repository.findByCnpj(cnpj);
+        String cnpj = establishment.cnpj();
+        Optional<Establishment> optionalEstablishment = repository.findByCnpj(cnpj);
 
-        if (savedEstablishment.isPresent())
+        if (optionalEstablishment.isPresent())
             throw new ResourceAlreadyExistsException(ESTABLISHMENT_ALREADY_EXISTS + cnpj);
 
-        return repository.save(establishment);
+        Establishment savadEstablishment = repository.save(establishment.toModel());
+
+        return EstablishmentDto.fromModel(savadEstablishment);
     }
 
     @Override
-    public List<Establishment> findAll() {
+    public List<EstablishmentDto> findAll() {
         log.info("Finding all Establishments!");
 
-        return repository.findAll();
+        return repository.findAll()
+            .stream().map(
+                EstablishmentDto::fromModel
+            ).collect(
+                Collectors.toList()
+            );
     }
 
     @Override
-    public Optional<Establishment> findOne(UUID id) {
+    public EstablishmentDto findOne(UUID id) {
         log.info("Finding one Establishment!");
 
-        Optional<Establishment> establishment = repository.findById(id);
+        Establishment establishment = repository.findById(id).orElseThrow(
+            () -> new ResourceNotFoundException(ESTABLISHMENT_NOT_FOUND + id)
+        );
         
-        if (establishment.isEmpty())
-            throw new ResourceNotFoundException(ESTABLISHMENT_NOT_FOUND + id);
-        
-        return establishment;
+        return EstablishmentDto.fromModel(establishment);
     }
 
     @Override
-    public Establishment update(UUID id, Establishment establishment) {
+    public EstablishmentDto update(UUID id, EstablishmentDto establishment) {
         log.info("Updating one Establishment!");
 
         return repository
             .findById(id)
             .map(foundEstablishment -> {
-                foundEstablishment.setCnpj(establishment.getCnpj());
-                foundEstablishment.setName(establishment.getName());
+                foundEstablishment.setCnpj(establishment.cnpj());
+                foundEstablishment.setName(establishment.name());
 
-                foundEstablishment.getAddress().setName(establishment.getAddress().getName());
-                foundEstablishment.getAddress().setNumber(establishment.getAddress().getNumber());
-                foundEstablishment.getAddress().setComplement(establishment.getAddress().getComplement());
-                foundEstablishment.getAddress().setDistrict(establishment.getAddress().getDistrict());
-                foundEstablishment.getAddress().setCity(establishment.getAddress().getCity());
-                foundEstablishment.getAddress().setState(establishment.getAddress().getState());
-                foundEstablishment.getAddress().setCep(establishment.getAddress().getCep());
+                foundEstablishment.getAddress().setName(establishment.address().name());
+                foundEstablishment.getAddress().setNumber(establishment.address().number());
+                foundEstablishment.getAddress().setComplement(establishment.address().complement());
+                foundEstablishment.getAddress().setDistrict(establishment.address().district());
+                foundEstablishment.getAddress().setCity(establishment.address().city());
+                foundEstablishment.getAddress().setState(establishment.address().state());
+                foundEstablishment.getAddress().setCep(establishment.address().cep());
 
-                foundEstablishment.getPhone().setDdd(establishment.getPhone().getDdd());
-                foundEstablishment.getPhone().setNumber(establishment.getPhone().getNumber());
+                foundEstablishment.getPhone().setDdd(establishment.phone().ddd());
+                foundEstablishment.getPhone().setNumber(establishment.phone().number());
 
-                foundEstablishment.setNumberSpaceMotocycle(establishment.getNumberSpaceMotocycle());
-                foundEstablishment.setNumberSpaceCar(establishment.getNumberSpaceCar());
-                return repository.save(foundEstablishment);
+                foundEstablishment.setNumberSpaceMotocycle(establishment.numberSpaceMotocycle());
+                foundEstablishment.setNumberSpaceCar(establishment.numberSpaceCar());
+
+                Establishment updatedEstablishment = repository.save(foundEstablishment);
+
+                return EstablishmentDto.fromModel(updatedEstablishment);
             })
             .orElseThrow(() -> new ResourceNotFoundException(ESTABLISHMENT_NOT_FOUND + id));
     }

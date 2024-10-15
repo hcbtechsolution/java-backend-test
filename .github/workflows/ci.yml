@@ -11,7 +11,7 @@ env:
 
 jobs:
   continuous-integration:
-    name: Continuous Integration
+    name: Establishment Service
     runs-on: ubuntu-latest
 
     steps:
@@ -33,10 +33,10 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
 
-      - name: Build Establishment Service
+      - name: Build
         working-directory: ./parking-lots-management/establishment-service
         run: mvn -B clean package -DskipTests --no-transfer-progress
 
-      - name: Test Establishment Service
+      - name: Test
         working-directory: ./parking-lots-management/establishment-service
         run: mvn -B clean test --no-transfer-progress
