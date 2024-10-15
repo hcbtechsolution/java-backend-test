@@ -1,0 +1,33 @@
+logging:
+  file:
+    name: ./logs/log-file.log
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - helth
+          - info
+          - logfile
+
+server:
+  port: 8010
+
+spring:
+  application:
+    name: establishment
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/establishment
+    username: postgres
+    password: postgres
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    schemas: parking_lots
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
