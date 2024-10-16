@@ -8,5 +8,6 @@ public class TestConfigs {
 
     public static final int SERVER_PORT = 9010;
     public static final String CONTENT_TYPE_JSON = "application/json";
+    public static final String CONTENT_TYPE_XML = "application/xml";
     public static final String POSTGRESQL_DOCKER_IMAGE = "postgres:16.2-alpine3.19";
 }
