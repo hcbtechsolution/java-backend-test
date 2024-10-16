@@ -13,6 +13,16 @@ public record EstablishmentDto(
     Integer numberSpaceMotocycle,
     Integer numberSpaceCar
 ) {
+    public EstablishmentDto(
+    String cnpj,
+    String name,
+    AddressDto address,
+    PhoneDto phone,
+    Integer numberSpaceMotocycle,
+    Integer numberSpaceCar) {
+        this(null, cnpj, name, address, phone, numberSpaceMotocycle, numberSpaceCar);
+    }
+
     public Establishment toModel() {
         return Establishment.builder()
             .id(this.id)

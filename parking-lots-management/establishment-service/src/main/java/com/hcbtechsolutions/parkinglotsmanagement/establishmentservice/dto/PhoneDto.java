@@ -9,6 +9,10 @@ public record PhoneDto(
     String ddd,
     String number
 ) {
+    
+    public PhoneDto(String ddd, String number) {
+        this(null, ddd, number);
+    }
 
     public Phone toModel() {
         return Phone.builder().id(this.id).ddd(this.ddd).number(this.number).build();
