@@ -45,6 +45,8 @@ jobs:
       - name: Generate tag
         id: generate_tag
         run: |
+          echo ${GITHUB_SHA::7}
+          echo $GITHUB_SHA
           SHA=$(echo $GITHUB_SHA | head -c7)
           echo "sha=$SHA" >> $GITHUB_OUTPUT
 
