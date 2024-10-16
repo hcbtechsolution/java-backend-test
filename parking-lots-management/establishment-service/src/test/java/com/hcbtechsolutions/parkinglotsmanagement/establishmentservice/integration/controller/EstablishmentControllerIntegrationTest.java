@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -47,6 +48,8 @@ class EstablishmentControllerIntegrationTest extends AbstractApplicationContextI
 
     private static final String ESTABLISHMENT_BASE_URL = "/establishments";
 
+    private UUID createdEstablishmentTwoId;
+
     @BeforeAll
     public static void setUp() {
         mapper = new ObjectMapper();
@@ -76,6 +79,17 @@ class EstablishmentControllerIntegrationTest extends AbstractApplicationContextI
             new PhoneDto("92", "98199-5567"),
             6,
             6);
+    }
+
+    @AfterAll
+    void cleanUp() {
+        given()
+            .spec(specification)
+                .pathParam("id", createdEstablishmentTwoId)
+        .when()
+            .delete("{id}")
+        .then()
+            .statusCode(HttpStatus.NO_CONTENT.value()); 
     }
 
     @Test
@@ -219,6 +233,7 @@ class EstablishmentControllerIntegrationTest extends AbstractApplicationContextI
                                     .asString();
 
         EstablishmentDto[] arrayOfEstablishment = mapper.readValue(content, EstablishmentDto[].class);
+        createdEstablishmentTwoId = arrayOfEstablishment[1].id();
         List<EstablishmentDto> establishments = Arrays.asList(arrayOfEstablishment);
 
         assertNotNull(establishments);
