@@ -48,7 +48,7 @@ class EstablishmentControllerIntegrationTest extends AbstractApplicationContextI
 
     private static final String ESTABLISHMENT_BASE_URL = "/establishments";
 
-    private UUID createdEstablishmentTwoId;
+    private static UUID createdEstablishmentTwoId;
 
     @BeforeAll
     public static void setUp() {
@@ -82,7 +82,7 @@ class EstablishmentControllerIntegrationTest extends AbstractApplicationContextI
     }
 
     @AfterAll
-    void cleanUp() {
+    public static void cleanUp() {
         given()
             .spec(specification)
                 .pathParam("id", createdEstablishmentTwoId)
