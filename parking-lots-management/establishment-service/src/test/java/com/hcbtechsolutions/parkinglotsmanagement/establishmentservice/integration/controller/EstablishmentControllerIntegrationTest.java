@@ -63,7 +63,7 @@ class EstablishmentControllerIntegrationTest extends AbstractApplicationContextI
             .build();
 
         establishmentDto = new EstablishmentDto(
-            "62.258.611/0001-91", 
+            "87.782.952/0001-92", 
             "Establishment Test 1", 
             new AddressDto(
                 "Rua Oiapoque", 
@@ -178,7 +178,7 @@ class EstablishmentControllerIntegrationTest extends AbstractApplicationContextI
     void integrationTestGivenListofEstablishment_whenGetAllEstablishment_ShouldReturnAEstablishmentList() 
             throws JsonProcessingException {
         EstablishmentDto anotherEstablishment = new EstablishmentDto(
-            "39.967.491/0001-80", 
+            "28.248.083/0001-51", 
             "Establishment Test 2", 
             new AddressDto(
                 "Rua Atagamita", 
