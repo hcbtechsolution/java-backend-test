@@ -1,0 +1,24 @@
+logging:
+  file:
+    name: ./logs/log-file.log
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - helth
+          - info
+          - logfile
+
+server:
+  port: 8020
+
+spring:
+  application:
+    name: vehicle-service
+  data:
+    mongodb:
+      uri: mongodb://mongodb:mongodb@localhost:27017/
+      database: vehicle
+      auto-index-creation: true

@@ -85,7 +85,7 @@ public class EstablishmentServiceImpl implements EstablishmentService {
                 foundEstablishment.getPhone().setDdd(establishment.phone().ddd());
                 foundEstablishment.getPhone().setNumber(establishment.phone().number());
 
-                foundEstablishment.setNumberSpaceMotocycle(establishment.numberSpaceMotocycle());
+                foundEstablishment.setNumberSpaceMotorcycle(establishment.numberSpaceMotorcycle());
                 foundEstablishment.setNumberSpaceCar(establishment.numberSpaceCar());
 
                 Establishment updatedEstablishment = repository.save(foundEstablishment);

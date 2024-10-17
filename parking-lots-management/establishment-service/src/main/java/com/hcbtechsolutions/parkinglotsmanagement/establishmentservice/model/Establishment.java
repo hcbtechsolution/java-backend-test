@@ -42,8 +42,8 @@ public class Establishment {
     @JoinColumn(name = "phone_id", referencedColumnName = "id", nullable = false)
     private Phone phone;
     
-    @Column(name = "number_space_motocycle", nullable = false )
-    private Integer numberSpaceMotocycle;
+    @Column(name = "number_space_motorcycle", nullable = false )
+    private Integer numberSpaceMotorcycle;
     
     @Column(name = "number_space_car", nullable = false)
     private Integer numberSpaceCar;

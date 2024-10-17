@@ -10,7 +10,7 @@ public record EstablishmentDto(
     String name,
     AddressDto address,
     PhoneDto phone,
-    Integer numberSpaceMotocycle,
+    Integer numberSpaceMotorcycle,
     Integer numberSpaceCar
 ) {
     public EstablishmentDto(
@@ -18,9 +18,9 @@ public record EstablishmentDto(
     String name,
     AddressDto address,
     PhoneDto phone,
-    Integer numberSpaceMotocycle,
+    Integer numberSpaceMotorcycle,
     Integer numberSpaceCar) {
-        this(null, cnpj, name, address, phone, numberSpaceMotocycle, numberSpaceCar);
+        this(null, cnpj, name, address, phone, numberSpaceMotorcycle, numberSpaceCar);
     }
 
     public Establishment toModel() {
@@ -30,7 +30,7 @@ public record EstablishmentDto(
             .name(this.name)
             .address(this.address.toModel())
             .phone(this.phone.toModel())
-            .numberSpaceMotocycle(this.numberSpaceMotocycle)
+            .numberSpaceMotorcycle(this.numberSpaceMotorcycle)
             .numberSpaceCar(this.numberSpaceCar)
             .build();
     }
@@ -42,7 +42,7 @@ public record EstablishmentDto(
             establishment.getName(), 
             AddressDto.fromModel(establishment.getAddress()), 
             PhoneDto.fromModel(establishment.getPhone()), 
-            establishment.getNumberSpaceMotocycle(), 
+            establishment.getNumberSpaceMotorcycle(), 
             establishment.getNumberSpaceCar());
     }
 }
