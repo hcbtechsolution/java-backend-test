@@ -52,7 +52,7 @@ class EstablishmentRepositoryTest extends AbstractApplicationContextInitializer 
                         .number("98199-5567")
                         .build())
                 .numberSpaceCar(6)
-                .numberSpaceMotocycle(6)
+                .numberSpaceMotorcycle(6)
                 .build();
     }
 
@@ -94,7 +94,7 @@ class EstablishmentRepositoryTest extends AbstractApplicationContextInitializer 
                         .number("98498-5948")
                         .build())
                 .numberSpaceCar(3)
-                .numberSpaceMotocycle(3)
+                .numberSpaceMotorcycle(3)
                 .build();
         
         repository.save(establishmentOne);
