@@ -1,5 +1,6 @@
 package com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.dto;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.model.Establishment;
@@ -12,7 +13,7 @@ public record EstablishmentDto(
     PhoneDto phone,
     Integer numberSpaceMotorcycle,
     Integer numberSpaceCar
-) {
+) implements Serializable {
     public EstablishmentDto(
     String cnpj,
     String name,

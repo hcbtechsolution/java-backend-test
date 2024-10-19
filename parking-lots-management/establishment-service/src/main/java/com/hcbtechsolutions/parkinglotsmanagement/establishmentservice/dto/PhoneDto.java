@@ -1,5 +1,6 @@
 package com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.dto;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.model.Phone;
@@ -8,7 +9,7 @@ public record PhoneDto(
     UUID id,
     String ddd,
     String number
-) {
+) implements Serializable {
     
     public PhoneDto(String ddd, String number) {
         this(null, ddd, number);

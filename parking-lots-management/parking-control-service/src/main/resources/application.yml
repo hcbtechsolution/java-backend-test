@@ -12,25 +12,23 @@ management:
           - logfile
 
 server:
-  port: 8010
+  port: 8030
 
 spring:
   application:
-    name: establishment
+    name: parking-control-service
   datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/establishment
-    username: postgres
-    password: postgres
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/parking-control
+    username: mysql
+    password: mysql
   flyway:
     enabled: true
     locations: classpath:db/migration
-    schemas: parking_lots
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
       ddl-auto: update
-    show-sql: false
   rabbitmq:
     host: localhost
     port: 5672
