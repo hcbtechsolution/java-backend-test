@@ -10,6 +10,6 @@ public record VehicleMessageDto(
 ) {
 
     public Vehicle toModel() {
-        return Vehicle.builder().id(id).licensePlate(licensePlate).type(type).build();
+        return Vehicle.builder().id(id).licensePlate(licensePlate.toUpperCase()).type(type).build();
     }
 }
