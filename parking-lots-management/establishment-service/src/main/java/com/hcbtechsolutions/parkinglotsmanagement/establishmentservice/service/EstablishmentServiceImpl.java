@@ -5,9 +5,12 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
+import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.config.RabbitConfig;
 import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.dto.EstablishmentDto;
+import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.dto.EstablishmentMessageDto;
 import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.exception.ResourceAlreadyExistsException;
 import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.exception.ResourceNotFoundException;
 import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.model.Establishment;
@@ -22,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class EstablishmentServiceImpl implements EstablishmentService {
 
     private EstablishmentRepository repository;
+    private RabbitTemplate rabbitTemplate;
     
     private static final String ESTABLISHMENT_NOT_FOUND = "Establishment not found with id: ";
     private static final String ESTABLISHMENT_ALREADY_EXISTS = "Establishment already exists with cnpj: ";
@@ -37,6 +41,13 @@ public class EstablishmentServiceImpl implements EstablishmentService {
             throw new ResourceAlreadyExistsException(ESTABLISHMENT_ALREADY_EXISTS + cnpj);
 
         Establishment savadEstablishment = repository.save(establishment.toModel());
+
+        EstablishmentMessageDto establishmentMessageDto = EstablishmentMessageDto.fromModel(savadEstablishment);
+        
+        rabbitTemplate.convertAndSend(
+            RabbitConfig.TOPIC_EXCHANGE, 
+            RabbitConfig.ESTABLISHMENT_ROUTING_KEY, 
+            establishmentMessageDto);
 
         return EstablishmentDto.fromModel(savadEstablishment);
     }
@@ -89,6 +100,12 @@ public class EstablishmentServiceImpl implements EstablishmentService {
                 foundEstablishment.setNumberSpaceCar(establishment.numberSpaceCar());
 
                 Establishment updatedEstablishment = repository.save(foundEstablishment);
+
+                EstablishmentMessageDto establishmentMessageDto = EstablishmentMessageDto.fromModel(updatedEstablishment);
+                rabbitTemplate.convertAndSend(
+                    RabbitConfig.TOPIC_EXCHANGE, 
+                    RabbitConfig.ESTABLISHMENT_ROUTING_KEY, 
+                    establishmentMessageDto);
 
                 return EstablishmentDto.fromModel(updatedEstablishment);
             })

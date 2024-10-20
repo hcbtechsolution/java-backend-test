@@ -25,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.dto.AddressDto;
 import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.dto.EstablishmentDto;
@@ -40,6 +41,9 @@ class EstablishmentServiceTest {
 
     @Mock
     private EstablishmentRepository repository;
+
+    @Mock
+    private RabbitTemplate rabbitTemplate;
 
     @InjectMocks
     private EstablishmentServiceImpl service;

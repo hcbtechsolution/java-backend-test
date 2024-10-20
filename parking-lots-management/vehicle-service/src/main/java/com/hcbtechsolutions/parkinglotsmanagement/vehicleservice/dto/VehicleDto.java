@@ -1,5 +1,7 @@
 package com.hcbtechsolutions.parkinglotsmanagement.vehicleservice.dto;
 
+import java.io.Serializable;
+
 import com.hcbtechsolutions.parkinglotsmanagement.vehicleservice.enums.VehicleTypeEnum;
 import com.hcbtechsolutions.parkinglotsmanagement.vehicleservice.model.Vehicle;
 
@@ -10,7 +12,7 @@ public record VehicleDto(
     String color,
     String licensePlate,
     VehicleTypeEnum type
-) {
+) implements Serializable {
 
     public VehicleDto(String brand, String model, String color, String licensePlate, VehicleTypeEnum type) {
         this(null, brand, model, color, licensePlate.toUpperCase(), type);

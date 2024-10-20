@@ -1,5 +1,6 @@
 package com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.dto;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.enums.StateEnum;
@@ -14,7 +15,7 @@ public record AddressDto(
     String city,
     StateEnum state,
     String cep
-) {
+) implements Serializable {
 
     public AddressDto(
         String name,

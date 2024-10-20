@@ -22,3 +22,8 @@ spring:
       uri: mongodb://mongodb:mongodb@localhost:27017/
       database: vehicle
       auto-index-creation: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: rabbitmq
+    password: rabbitmq
