@@ -43,7 +43,7 @@ services:
     restart: always
     tty: true
     volumes:
-      - postgresql:/var/lib/postgresql
+      - postgresql:/var/lib/postgresql/data
 
   mongo:
     image: mongo:7.0.5
@@ -90,6 +90,7 @@ services:
     tty: true
     volumes:
       - mysql:/var/lib/mysql
+
   establishment-service:
     image: hcbtechsolutions/establishment-service
     build:
@@ -137,6 +138,32 @@ services:
       - app
     ports:
       - 8020:8020
+    restart: always
+    tty: true
+
+  parking-control-service:
+    image: hcbtechsolutions/parking-control-service
+    build:
+      context: ./parking-control-service
+      dockerfile: Dockerfile
+    container_name: parking-control-service
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/parking-control
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USER}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASS}
+      - TZ=America/Sao_Paulo
+    hostname: parking-control-service
+    networks:
+      - mysql
+      - app
+    ports:
+      - 8030:8030
     restart: always
     tty: true
 
