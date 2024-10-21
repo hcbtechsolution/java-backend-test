@@ -91,6 +91,29 @@ services:
     volumes:
       - mysql:/var/lib/mysql
 
+  eureka-server:
+    image: hcbtechsolutions/eureka-discovery-service
+    build:
+      context: ./eureka-discovery-service
+      dockerfile: Dockerfile
+    container_name: eureka-discovery-service
+    environment:
+      SPRING.SECURITY.USER.NAME: ${EUREKA_USER}
+      SPRING.SECURITY.USER.PASSWORD: ${EUREKA_PASSWORD}
+      TZ: America/Sao_Paulo
+    healthcheck:
+      test: "curl -fs localhost:8761/actuator/health | grep UP || exit 1"
+      interval: 20s
+      timeout: 5s
+      retries: 5
+    hostname: eureka-discovery-service
+    networks:
+      - app
+    ports:
+      - 8761:8761
+    restart: always
+    tty: true
+
   establishment-service:
     image: hcbtechsolutions/establishment-service
     build:
@@ -98,9 +121,14 @@ services:
       dockerfile: Dockerfile
     container_name: establishment-service
     depends_on:
+      eureka-server:
+        condition: service_healthy
       postgres:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
+      - EUREKA.CLIENT.SERVICEURL.DEFAULTZONE=http://${EUREKA_USER}:${EUREKA_PASSWORD}@eureka-server:8761/eureka
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/establishment
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
@@ -124,9 +152,14 @@ services:
       dockerfile: Dockerfile
     container_name: vehicle-service
     depends_on:
+      eureka-server:
+        condition: service_healthy
       mongo:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
+      - EUREKA.CLIENT.SERVICEURL.DEFAULTZONE=http://${EUREKA_USER}:${EUREKA_PASSWORD}@eureka-server:8761/eureka
       - SPRING_DATA_MONGODB_URI=mongodb://${MONGODB_USER}:${MONGODB_PASSWORD}@mongo:27017/
       - SPRING_RABBITMQ_HOST=rabbitmq
       - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USER}
@@ -148,9 +181,14 @@ services:
       dockerfile: Dockerfile
     container_name: parking-control-service
     depends_on:
+      eureka-server:
+        condition: service_healthy
       mysql:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
+      - EUREKA.CLIENT.SERVICEURL.DEFAULTZONE=http://${EUREKA_USER}:${EUREKA_PASSWORD}@eureka-server:8761/eureka
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/parking-control
       - SPRING_DATASOURCE_USERNAME=${MYSQL_USER}
       - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
