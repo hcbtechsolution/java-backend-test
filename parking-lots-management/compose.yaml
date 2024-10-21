@@ -114,6 +114,26 @@ services:
     restart: always
     tty: true
 
+  api-gateway:
+    image: hcbtechsolutions/api-gateway
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    environment:
+      - EUREKA.CLIENT.SERVICEURL.DEFAULTZONE=http://${EUREKA_USER}:${EUREKA_PASSWORD}@eureka-server:8761/eureka
+      - TZ=America/Sao_Paulo
+    hostname: api-gateway
+    networks:
+      - app
+    ports:
+      - 8080:8080
+    restart: always
+    tty: true
+
   establishment-service:
     image: hcbtechsolutions/establishment-service
     build:
@@ -140,8 +160,6 @@ services:
     networks:
       - postgres
       - app
-    ports:
-      - 8010:8010
     restart: always
     tty: true
 
@@ -169,8 +187,6 @@ services:
     networks:
       - mongo
       - app
-    ports:
-      - 8020:8020
     restart: always
     tty: true
 
@@ -200,8 +216,6 @@ services:
     networks:
       - mysql
       - app
-    ports:
-      - 8030:8030
     restart: always
     tty: true
 

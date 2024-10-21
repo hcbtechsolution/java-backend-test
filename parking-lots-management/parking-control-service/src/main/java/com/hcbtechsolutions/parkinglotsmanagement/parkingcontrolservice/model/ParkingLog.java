@@ -29,10 +29,10 @@ public class ParkingLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "establishment_uuid", length = 36, unique = true, nullable = false)
+    @Column(name = "establishment_uuid", length = 36, nullable = false)
     private String establishmentUuid;
 
-    @Column(name = "license_plate", length = 8, unique = true, nullable = false)
+    @Column(name = "license_plate", length = 8, nullable = false)
     private String licensePlate;
 
     @Column(length = 20, nullable = false)
