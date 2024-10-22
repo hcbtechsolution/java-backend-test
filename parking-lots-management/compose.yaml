@@ -26,12 +26,12 @@ services:
     image: postgres:16.2-alpine3.19
     container_name: postgres
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=establishment
-      - TZ=America/Sao_Paulo
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: establishment
+      TZ: America/Sao_Paulo
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U establishment"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 10s
       retries: 5
@@ -49,9 +49,9 @@ services:
     image: mongo:7.0.5
     container_name: mongo
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
-      - TZ=America/Sao_Paulo
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
+      TZ: America/Sao_Paulo
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 5s
@@ -71,11 +71,11 @@ services:
     image: mysql:8.0
     container_name: mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=parking-control
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - TZ=America/Sao_Paulo
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: parking-control
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: America/Sao_Paulo
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
@@ -98,8 +98,8 @@ services:
       dockerfile: Dockerfile
     container_name: eureka-discovery-service
     environment:
-      SPRING.SECURITY.USER.NAME: ${EUREKA_USER}
-      SPRING.SECURITY.USER.PASSWORD: ${EUREKA_PASSWORD}
+      SPRING_SECURITY_USER_NAME: ${EUREKA_USER}
+      SPRING_SECURITY_USER_PASSWORD: ${EUREKA_PASSWORD}
       TZ: America/Sao_Paulo
     healthcheck:
       test: "curl -fs localhost:8761/actuator/health | grep UP || exit 1"
@@ -124,8 +124,8 @@ services:
       eureka-server:
         condition: service_healthy
     environment:
-      - EUREKA.CLIENT.SERVICEURL.DEFAULTZONE=http://${EUREKA_USER}:${EUREKA_PASSWORD}@eureka-server:8761/eureka
-      - TZ=America/Sao_Paulo
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://${EUREKA_USER}:${EUREKA_PASSWORD}@eureka-server:8761/eureka
+      TZ: America/Sao_Paulo
     hostname: api-gateway
     networks:
       - app
@@ -148,14 +148,14 @@ services:
       rabbitmq:
         condition: service_healthy
     environment:
-      - EUREKA.CLIENT.SERVICEURL.DEFAULTZONE=http://${EUREKA_USER}:${EUREKA_PASSWORD}@eureka-server:8761/eureka
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/establishment
-      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
-      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
-      - SPRING_RABBITMQ_HOST=rabbitmq
-      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USER}
-      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASS}
-      - TZ=America/Sao_Paulo
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://${EUREKA_USER}:${EUREKA_PASSWORD}@eureka-server:8761/eureka
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/establishment
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
+      TZ: America/Sao_Paulo
     hostname: establishment-service
     networks:
       - postgres
@@ -177,12 +177,12 @@ services:
       rabbitmq:
         condition: service_healthy
     environment:
-      - EUREKA.CLIENT.SERVICEURL.DEFAULTZONE=http://${EUREKA_USER}:${EUREKA_PASSWORD}@eureka-server:8761/eureka
-      - SPRING_DATA_MONGODB_URI=mongodb://${MONGODB_USER}:${MONGODB_PASSWORD}@mongo:27017/
-      - SPRING_RABBITMQ_HOST=rabbitmq
-      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USER}
-      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASS}
-      - TZ=America/Sao_Paulo
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://${EUREKA_USER}:${EUREKA_PASSWORD}@eureka-server:8761/eureka
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGODB_USER}:${MONGODB_PASSWORD}@mongo:27017/
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
+      TZ: America/Sao_Paulo
     hostname: vehicle-service
     networks:
       - mongo
@@ -204,14 +204,14 @@ services:
       rabbitmq:
         condition: service_healthy
     environment:
-      - EUREKA.CLIENT.SERVICEURL.DEFAULTZONE=http://${EUREKA_USER}:${EUREKA_PASSWORD}@eureka-server:8761/eureka
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/parking-control
-      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER}
-      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
-      - SPRING_RABBITMQ_HOST=rabbitmq
-      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USER}
-      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASS}
-      - TZ=America/Sao_Paulo
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://${EUREKA_USER}:${EUREKA_PASSWORD}@eureka-server:8761/eureka
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/parking-control
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
+      TZ: America/Sao_Paulo
     hostname: parking-control-service
     networks:
       - mysql
