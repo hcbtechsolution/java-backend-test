@@ -1,7 +1,6 @@
 package com.hcbtechsolutions.parkinglotsmanagement.vehicleservice.service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -33,78 +32,80 @@ public class VehicleServiceImpl implements VehicleService {
     public VehicleDto save(VehicleDto vehicle) {
         log.info("Saving one Vehicle!");
 
-        String licensePlate = vehicle.licensePlate();
-        Optional<Vehicle> optionalVehicle = repository.findByLicensePlate(licensePlate);
+        String licensePlate = vehicle.licensePlate().toUpperCase();
 
-        if (optionalVehicle.isPresent())
-            throw new ResourceAlreadyExistsException(VEHICLE_ALREADY_EXISTS + licensePlate);
+        repository.findByLicensePlate(licensePlate).ifPresent(
+                foundVehicle -> {
+                    throw new ResourceAlreadyExistsException(VEHICLE_ALREADY_EXISTS + licensePlate);
+                });
 
         Vehicle savedVehicle = repository.save(vehicle.toModel());
 
         VehicleMessageDto vehicleMessageDto = VehicleMessageDto.fromModel(savedVehicle);
 
         rabbitTemplate.convertAndSend(
-            RabbitConfig.TOPIC_EXCHANGE, 
-            RabbitConfig.VEHICLE_ROUTING_KEY, 
-            vehicleMessageDto);
+                RabbitConfig.TOPIC_EXCHANGE,
+                RabbitConfig.VEHICLE_ROUTING_KEY,
+                vehicleMessageDto);
 
-        return VehicleDto.fromModel(savedVehicle);        
+        return VehicleDto.fromModel(savedVehicle);
     }
+
     @Override
     public List<VehicleDto> findAll() {
         log.info("Finding all Vehicles!");
 
         return repository.findAll()
-            .stream().map(
-                VehicleDto::fromModel
-            ).collect(
-                Collectors.toList()
-            );
+                .stream().map(
+                        VehicleDto::fromModel)
+                .collect(
+                        Collectors.toList());
     }
+
     @Override
     public VehicleDto findOne(String id) {
         log.info("Finding one Vehicle!");
 
         Vehicle vehicle = repository.findById(id).orElseThrow(
-            () -> new ResourceNotFoundException(VEHICLE_NOT_FOUND + id)
-        );
+                () -> new ResourceNotFoundException(VEHICLE_NOT_FOUND + id));
 
         return VehicleDto.fromModel(vehicle);
     }
+
     @Override
     public VehicleDto update(String id, VehicleDto vehicle) {
         log.info("Updating one Vehicle!");
 
         return repository
-            .findById(id)
-            .map(foundVehicle -> {
-                foundVehicle.setBrand(vehicle.brand());
-                foundVehicle.setModel(vehicle.model());
-                foundVehicle.setColor(vehicle.color());
-                foundVehicle.setLicensePlate(vehicle.licensePlate());
-                foundVehicle.setType(vehicle.type());
+                .findById(id)
+                .map(foundVehicle -> {
+                    foundVehicle.setBrand(vehicle.brand());
+                    foundVehicle.setModel(vehicle.model());
+                    foundVehicle.setColor(vehicle.color());
+                    foundVehicle.setLicensePlate(vehicle.licensePlate());
+                    foundVehicle.setType(vehicle.type());
 
-                Vehicle updatedVehicle = repository.save(foundVehicle);
+                    Vehicle updatedVehicle = repository.save(foundVehicle);
 
-                VehicleMessageDto vehicleMessageDto = VehicleMessageDto.fromModel(foundVehicle);
+                    VehicleMessageDto vehicleMessageDto = VehicleMessageDto.fromModel(foundVehicle);
 
-                rabbitTemplate.convertAndSend(
-                    RabbitConfig.TOPIC_EXCHANGE, 
-                    RabbitConfig.VEHICLE_ROUTING_KEY, 
-                    vehicleMessageDto);
-                    
-                return VehicleDto.fromModel(updatedVehicle);
-            })
-            .orElseThrow(
-                () -> new ResourceNotFoundException(VEHICLE_NOT_FOUND + id)
-            );
+                    rabbitTemplate.convertAndSend(
+                            RabbitConfig.TOPIC_EXCHANGE,
+                            RabbitConfig.VEHICLE_ROUTING_KEY,
+                            vehicleMessageDto);
+
+                    return VehicleDto.fromModel(updatedVehicle);
+                })
+                .orElseThrow(
+                        () -> new ResourceNotFoundException(VEHICLE_NOT_FOUND + id));
     }
+
     @Override
     public void delete(String id) {
         log.info("Deleting one Vehicle!");
 
         if (repository.existsById(id))
-            repository.deleteById(id);            
+            repository.deleteById(id);
         else
             throw new ResourceNotFoundException(VEHICLE_NOT_FOUND + id);
     }
