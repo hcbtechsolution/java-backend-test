@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.hcbtechsolutions.parkinglotsmanagement.parkingcontrolservice.dto.ParkingLogDto;
 import com.hcbtechsolutions.parkinglotsmanagement.parkingcontrolservice.enums.VehicleTypeEnum;
+import com.hcbtechsolutions.parkinglotsmanagement.parkingcontrolservice.exception.ResourceAlreadyExistsException;
 import com.hcbtechsolutions.parkinglotsmanagement.parkingcontrolservice.exception.ResourceNotFoundException;
 import com.hcbtechsolutions.parkinglotsmanagement.parkingcontrolservice.model.Establishment;
 import com.hcbtechsolutions.parkinglotsmanagement.parkingcontrolservice.model.ParkingLog;
@@ -33,6 +34,24 @@ public class ParkingControlServiceImpl implements ParkingControlService {
         Vehicle vehicle = vehicleRepository.findByLicensePlate(parkingLogDto.licensePlate().toUpperCase())
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found with license plate: "
                         + parkingLogDto.licensePlate()));
+
+        repository.findByEstablishmentUuidAndLicensePlateAndCheckOutIsNull(
+                establishment.getUuid(),
+                vehicle.getLicensePlate())
+                .ifPresent(parkingLog -> {
+                    throw new ResourceAlreadyExistsException(
+                            "Vehicle already checked in at " + parkingLog.getCheckIn() + " with license plate "
+                                    + parkingLog.getLicensePlate() + " in this establishment with id: "
+                                    + parkingLog.getEstablishmentUuid());
+                });
+
+        repository.findByLicensePlateAndCheckOutIsNull(vehicle.getLicensePlate())
+                .ifPresent(parkingLog -> {
+                    throw new ResourceAlreadyExistsException(
+                            "Vehicle with license plate " + parkingLog.getLicensePlate() + " already checked in at "
+                                    + parkingLog.getCheckIn() + " in another establishment with id: "
+                                    + parkingLog.getEstablishmentUuid());
+                });
 
         if (VehicleTypeEnum.CAR.name().equals(vehicle.getType().name())
                 && establishment.getAvailableSlotsCar() > 0)
@@ -68,6 +87,10 @@ public class ParkingControlServiceImpl implements ParkingControlService {
 
         ParkingLog parkingLog = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parking Log not found with id: " + id));
+
+        if (parkingLog.getCheckOut() != null)
+            throw new ResourceAlreadyExistsException("Vehicle with license plate " + vehicle.getLicensePlate()
+                    + " already checked out at " + parkingLog.getCheckOut());
 
         if (VehicleTypeEnum.CAR.name().equals(vehicle.getType().name()))
             establishment.setAvailableSlotsCar(establishment.getAvailableSlotsCar() + 1);
