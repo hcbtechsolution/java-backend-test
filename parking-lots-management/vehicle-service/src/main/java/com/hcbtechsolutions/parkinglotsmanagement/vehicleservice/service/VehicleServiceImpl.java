@@ -55,19 +55,20 @@ public class VehicleServiceImpl implements VehicleService {
     public List<VehicleDto> findAll() {
         log.info("Finding all Vehicles!");
 
-        return repository.findAll()
-                .stream().map(
-                        VehicleDto::fromModel)
-                .collect(
-                        Collectors.toList());
+        return repository
+                .findAll()
+                .stream()
+                .map(VehicleDto::fromModel)
+                .collect(Collectors.toList());
     }
 
     @Override
     public VehicleDto findOne(String id) {
         log.info("Finding one Vehicle!");
 
-        Vehicle vehicle = repository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException(VEHICLE_NOT_FOUND + id));
+        Vehicle vehicle = repository
+                .findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(VEHICLE_NOT_FOUND + id));
 
         return VehicleDto.fromModel(vehicle);
     }
@@ -96,8 +97,7 @@ public class VehicleServiceImpl implements VehicleService {
 
                     return VehicleDto.fromModel(updatedVehicle);
                 })
-                .orElseThrow(
-                        () -> new ResourceNotFoundException(VEHICLE_NOT_FOUND + id));
+                .orElseThrow(() -> new ResourceNotFoundException(VEHICLE_NOT_FOUND + id));
     }
 
     @Override
