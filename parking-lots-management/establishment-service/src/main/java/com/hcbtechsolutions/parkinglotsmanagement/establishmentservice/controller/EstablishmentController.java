@@ -1,8 +1,13 @@
 package com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.controller;
 
-import java.util.List;
-import java.util.UUID;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,38 +27,67 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/establishments")
+@RequestMapping(value = "/establishments", produces = { MediaType.APPLICATION_JSON_VALUE,
+        MediaType.APPLICATION_XML_VALUE })
 public class EstablishmentController {
+
+    private static final String ESTABLISHMENTS = "establishments";
 
     private EstablishmentService service;
 
-    @PostMapping(
-        consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
-        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<EstablishmentDto> postEstablishment(@RequestBody EstablishmentDto establishment) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.save(establishment));
+    @PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+    public ResponseEntity<EntityModel<EstablishmentDto>> postEstablishment(
+            @RequestBody EstablishmentDto establishmentDto) {
+        EstablishmentDto establishment = service.save(establishmentDto);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(EntityModel.of(
+                        establishment,
+                        linkTo(methodOn(EstablishmentController.class).getOneEstablishment(establishment.id()))
+                                .withSelfRel(),
+                        linkTo(methodOn(EstablishmentController.class).getAllEstablishments())
+                                .withRel(ESTABLISHMENTS)));
     }
 
-    @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<List<EstablishmentDto>> getAllEstablishments() {
-        return ResponseEntity.ok(service.findAll());
-    }
-    
-    @GetMapping(value = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<EstablishmentDto> getOneEstablishment(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.findOne(id));
-    }
-
-    @PutMapping(
-        value = "/{id}",
-        consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
-        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<EstablishmentDto> putEstablishment(
-        @PathVariable UUID id, @RequestBody EstablishmentDto establishment) {
-        return ResponseEntity.ok(service.update(id, establishment));
+    @GetMapping
+    public ResponseEntity<CollectionModel<EntityModel<EstablishmentDto>>> getAllEstablishments() {
+        var establishmentModels = service
+                .findAll()
+                .stream()
+                .map(dto -> EntityModel.of(
+                        dto,
+                        linkTo(methodOn(EstablishmentController.class).getOneEstablishment(dto.id())).withSelfRel()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(
+                CollectionModel.of(
+                        establishmentModels,
+                        linkTo(methodOn(EstablishmentController.class).getAllEstablishments()).withSelfRel()));
     }
 
-    @DeleteMapping(value = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<EntityModel<EstablishmentDto>> getOneEstablishment(@PathVariable UUID id) {
+        return ResponseEntity.ok(
+                EntityModel.of(
+                        service.findOne(id),
+                        linkTo(methodOn(EstablishmentController.class).getOneEstablishment(id)).withSelfRel(),
+                        linkTo(methodOn(EstablishmentController.class).getAllEstablishments())
+                                .withRel(ESTABLISHMENTS)));
+    }
+
+    @PutMapping(value = "/{id}", consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+    public ResponseEntity<EntityModel<EstablishmentDto>> putEstablishment(
+            @PathVariable UUID id,
+            @RequestBody EstablishmentDto establishmentDto) {
+        return ResponseEntity.ok(
+                EntityModel.of(
+                        service.update(id, establishmentDto),
+                        linkTo(methodOn(EstablishmentController.class).getOneEstablishment(id)).withSelfRel(),
+                        linkTo(methodOn(EstablishmentController.class).getAllEstablishments())
+                                .withRel(ESTABLISHMENTS)));
+    }
+
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deleteEstablishment(@PathVariable UUID id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
