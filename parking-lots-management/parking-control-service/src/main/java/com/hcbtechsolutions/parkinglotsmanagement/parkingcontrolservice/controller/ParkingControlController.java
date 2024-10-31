@@ -1,5 +1,9 @@
 package com.hcbtechsolutions.parkinglotsmanagement.parkingcontrolservice.controller;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,8 +27,14 @@ public class ParkingControlController {
     private ParkingControlService service;
 
     @PostMapping(value = "/checkin", consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-    public ResponseEntity<ParkingLogDto> checkin(@RequestBody ParkingLogDto parkingLog) {
-        return ResponseEntity.ok(service.doCheckIn(parkingLog));
+    public ResponseEntity<EntityModel<ParkingLogDto>> checkin(@RequestBody ParkingLogDto parkingLogDto) {
+        var parkingLog = service.doCheckIn(parkingLogDto);
+
+        return ResponseEntity.ok(
+                EntityModel.of(
+                        parkingLog,
+                        linkTo(methodOn(ParkingControlController.class).checkout(parkingLog.id(), parkingLogDto))
+                                .withRel("checkout")));
     }
 
     @PutMapping(value = "/checkout/{id}", consumes = { MediaType.APPLICATION_JSON_VALUE,
