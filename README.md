@@ -8,6 +8,7 @@ Teste realizado para o processo seletivo da FCamara
 - Maven
 - Spring Boot
 - Spring Cloud
+- Spring Hateoas
 - PostgreSQL
 - MySql
 - MongoDB
@@ -24,7 +25,7 @@ Somente o microsserviço de Estabelecimento foi implementado com TDD (Foi implem
 
 ### A fazer:
 
-- Configurar o Spring Hateoas e o Swagger;
+- Configurar o Swagger;
 - Implementar o microsserviço de Autenticação;
 - Criar API de relatório;
   - Sumário da quantidade de entrada e saída;
