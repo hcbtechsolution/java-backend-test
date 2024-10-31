@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -20,7 +21,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.config.TestConfigs;
@@ -30,7 +33,6 @@ import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.dto.Estab
 import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.dto.PhoneDto;
 import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.enums.StateEnum;
 import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.model.Establishment;
-import com.hcbtechsolutions.parkinglotsmanagement.establishmentservice.response.EstablishmentResponse;
 
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
@@ -190,7 +192,7 @@ class EstablishmentControllerIntegrationTest extends AbstractApplicationContextI
         @DisplayName("JUnit integration for Given List of Establishment when Get All Establishment " +
                         "should Return A Establishment List")
         void integrationTestGivenListofEstablishment_whenGetAllEstablishment_ShouldReturnAEstablishmentList()
-                        throws JsonProcessingException {
+                        throws IOException {
                 EstablishmentDto anotherEstablishment = new EstablishmentDto(
                                 "28.248.083/0001-51",
                                 "Establishment Test 2",
@@ -232,9 +234,13 @@ class EstablishmentControllerIntegrationTest extends AbstractApplicationContextI
                                 .body()
                                 .asString();
 
-                EstablishmentResponse response = mapper.readValue(content, EstablishmentResponse.class);
+                JsonNode establishmentDtoListNode = mapper.readTree(content).path("_embedded")
+                                .path("establishmentDtoList");
 
-                List<EstablishmentDto> establishments = response.get_embedded().getEstablishmentDtoList();
+                List<EstablishmentDto> establishments = mapper.convertValue(
+                                establishmentDtoListNode,
+                                new TypeReference<List<EstablishmentDto>>() {
+                                });
 
                 createdEstablishmentTwoId = establishments.get(1).id();
 
