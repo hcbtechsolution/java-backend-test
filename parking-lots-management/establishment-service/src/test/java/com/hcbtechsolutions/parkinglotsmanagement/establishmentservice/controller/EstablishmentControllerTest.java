@@ -43,10 +43,10 @@ class EstablishmentControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-    
+
     @Autowired
     private ObjectMapper mapper;
-    
+
     @MockBean
     private EstablishmentServiceImpl service;
 
@@ -57,75 +57,74 @@ class EstablishmentControllerTest {
     @BeforeEach
     public void setup() {
         establishmentDto = new EstablishmentDto(
-            null,
-            "62.258.611/0001-91",
-            "Establishment Test 1",
-            new AddressDto(
-                null, 
-                "Rua Oiapoque", 
-                "60", 
-                "casa", 
-                "Aleixo", 
-                "Manaus", 
-                StateEnum.AM, 
-                "69060-170"),
-            new PhoneDto(null, "92", "98199-5567"),
-            6,
-            6
-        );
+                null,
+                "62.258.611/0001-91",
+                "Establishment Test 1",
+                new AddressDto(
+                        null,
+                        "Rua Oiapoque",
+                        "60",
+                        "casa",
+                        "Aleixo",
+                        "Manaus",
+                        StateEnum.AM,
+                        "69060-170"),
+                new PhoneDto(null, "92", "98199-5567"),
+                6,
+                6);
     }
 
     @Test
     @DisplayName("JUnit test for Given EstablishmentJson when Save then Return SavedEstablishment")
-    void testGivenEstablishmentJson_whenSave_thenReturnSavedEstablishment() throws Exception  {
+    void testGivenEstablishmentJson_whenSave_thenReturnSavedEstablishment() throws Exception {
         given(service.save(any(EstablishmentDto.class)))
-            .willAnswer(invocation -> invocation.getArgument(0));
-        
+                .willAnswer(invocation -> invocation.getArgument(0));
+
         ResultActions response = mockMvc.perform(post(ESTABLISHMENT_BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(establishmentDto)));
 
         response
-            .andExpect(status().isCreated())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.name", is(establishmentDto.name())))
-            .andExpect(jsonPath("$.numberSpaceCar", is(establishmentDto.numberSpaceCar())))
-            .andDo(print());
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.name", is(establishmentDto.name())))
+                .andExpect(jsonPath("$.numberSpaceCar", is(establishmentDto.numberSpaceCar())))
+                .andDo(print());
     }
 
     @Test
     @DisplayName("JUnit test for Given an existing cnpj when Save then Return ResourceAlreadyExistsException")
-    void testGivenAnExistingCnpj_whenSave_thenReturnResourceAlreadyExistsException() throws Exception  {
+    void testGivenAnExistingCnpj_whenSave_thenReturnResourceAlreadyExistsException() throws Exception {
         given(service.save(any(EstablishmentDto.class)))
-            .willThrow(ResourceAlreadyExistsException.class);
-        
+                .willThrow(ResourceAlreadyExistsException.class);
+
         ResultActions response = mockMvc.perform(post(ESTABLISHMENT_BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(establishmentDto)));
 
         response
-            .andExpect(status().isConflict())
-            .andDo(print());
+                .andExpect(status().isConflict())
+                .andDo(print());
     }
 
     @Test
     @DisplayName("JUnit test for Given List of Establishment when Find All then Return Establishment List")
     void testGivenListOfEstablishment_whenFindAll_thenReturnEstablishmentList() throws Exception {
         List<EstablishmentDto> establishmentList = List.of(establishmentDto);
-        
+
         given(service.findAll()).willReturn(establishmentList);
 
         ResultActions response = mockMvc.perform(
-            get(ESTABLISHMENT_BASE_URL)
-            .accept(MediaType.APPLICATION_XML));
+                get(ESTABLISHMENT_BASE_URL)
+                        .accept(MediaType.APPLICATION_XML));
 
         response
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_XML))
-            .andExpect(xpath("List/item").nodeCount(establishmentList.size()))
-            .andDo(print());
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_XML))
+                .andExpect(xpath("CollectionModel/content").nodeCount(establishmentList.size()))
+                .andDo(print());
     }
 
     @Test
@@ -138,13 +137,13 @@ class EstablishmentControllerTest {
 
         ResultActions response = mockMvc.perform(
                 get(ESTABLISHMENT_BASE_URL + "/{id}", establishmentId)
-                .accept(MediaType.APPLICATION_JSON));
+                        .accept(MediaType.APPLICATION_JSON));
 
         response
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.id", is(establishmentId.toString())))
-            .andDo(print());
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id", is(establishmentId.toString())))
+                .andDo(print());
     }
 
     @Test
@@ -152,15 +151,15 @@ class EstablishmentControllerTest {
     void testGivenNonExistentEstablishmentId_whenFindOne_thenTrhowsResourceNotFoundException() throws Exception {
         UUID establishmentId = UUID.randomUUID();
         given(service.findOne(any(UUID.class)))
-            .willThrow(ResourceNotFoundException.class);
-        
+                .willThrow(ResourceNotFoundException.class);
+
         ResultActions response = mockMvc.perform(
                 get(ESTABLISHMENT_BASE_URL + "/{id}", establishmentId)
-                .accept(MediaType.APPLICATION_JSON));
+                        .accept(MediaType.APPLICATION_JSON));
 
         response
-            .andExpect(status().isNotFound())
-            .andDo(print());
+                .andExpect(status().isNotFound())
+                .andDo(print());
     }
 
     @Test
@@ -169,9 +168,9 @@ class EstablishmentControllerTest {
         UUID establishmentId = UUID.randomUUID();
         String updatedName = "Establishment Test 1 Updated";
         Integer updatedNumberSpaceCar = 3;
-        
+
         Establishment establishment = establishmentDto.toModel();
-        
+
         establishment.setId(establishmentId);
         establishment.setName(updatedName);
         establishment.setNumberSpaceCar(updatedNumberSpaceCar);
@@ -182,17 +181,17 @@ class EstablishmentControllerTest {
 
         ResultActions response = mockMvc.perform(
                 put(ESTABLISHMENT_BASE_URL + "/{id}", establishmentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(establishmentDto)));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(establishmentDto)));
 
         response
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.id", is(establishmentId.toString())))
-            .andExpect(jsonPath("$.name", is(updatedName)))
-            .andExpect(jsonPath("$.numberSpaceCar", is(updatedNumberSpaceCar)))
-            .andDo(print());
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id", is(establishmentId.toString())))
+                .andExpect(jsonPath("$.name", is(updatedName)))
+                .andExpect(jsonPath("$.numberSpaceCar", is(updatedNumberSpaceCar)))
+                .andDo(print());
     }
 
     @Test
@@ -200,48 +199,48 @@ class EstablishmentControllerTest {
     void testGivenNonExistentEstablishmentId_whenUpdate_thenTrhowsResourceNotFoundException() throws Exception {
         UUID establishmentId = UUID.randomUUID();
         given(service.update(any(UUID.class), any(EstablishmentDto.class)))
-            .willThrow(ResourceNotFoundException.class);
-        
+                .willThrow(ResourceNotFoundException.class);
+
         ResultActions response = mockMvc.perform(
                 put(ESTABLISHMENT_BASE_URL + "/{id}", establishmentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(establishmentDto)));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(establishmentDto)));
 
         response
-            .andExpect(status().isNotFound())
-            .andDo(print());
+                .andExpect(status().isNotFound())
+                .andDo(print());
     }
 
     @Test
     @DisplayName("JUnit test for Given EstablishmentId when Delete then Return NoContent")
     void testGivenEstablishmentId_whenDelete_thenReturnNoContent() throws Exception {
         UUID establishmentId = UUID.randomUUID();
-        
+
         willDoNothing().given(service).delete(any(UUID.class));
 
         ResultActions response = mockMvc.perform(
                 delete(ESTABLISHMENT_BASE_URL + "/{id}", establishmentId)
-                .accept(MediaType.APPLICATION_JSON));
+                        .accept(MediaType.APPLICATION_JSON));
 
         response
-            .andExpect(status().isNoContent())
-            .andDo(print());
+                .andExpect(status().isNoContent())
+                .andDo(print());
     }
 
     @Test
     @DisplayName("JUnit test for Given non Existent EstablishmentId when Delete then Trhows ResourceNotFoundException")
     void testGivenNonExistentEstablishmentId_whenDelete_thenTrhowsResourceNotFoundException() throws Exception {
         UUID establishmentId = UUID.randomUUID();
-        
+
         willThrow(ResourceNotFoundException.class).given(service).delete(any(UUID.class));
 
         ResultActions response = mockMvc.perform(
                 delete(ESTABLISHMENT_BASE_URL + "/{id}", establishmentId)
-                .accept(MediaType.APPLICATION_JSON));
+                        .accept(MediaType.APPLICATION_JSON));
 
         response
-            .andExpect(status().isNotFound())
-            .andDo(print());
+                .andExpect(status().isNotFound())
+                .andDo(print());
     }
 }

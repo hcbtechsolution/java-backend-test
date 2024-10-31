@@ -6,10 +6,9 @@ import com.hcbtechsolutions.parkinglotsmanagement.vehicleservice.enums.VehicleTy
 import com.hcbtechsolutions.parkinglotsmanagement.vehicleservice.model.Vehicle;
 
 public record VehicleMessageDto(
-    String id,
-    String licensePlate,
-    VehicleTypeEnum type
-) implements Serializable {
+        String id,
+        String licensePlate,
+        VehicleTypeEnum type) implements Serializable {
 
     public static VehicleMessageDto fromModel(Vehicle vehicle) {
         return new VehicleMessageDto(vehicle.getId(), vehicle.getLicensePlate(), vehicle.getType());
